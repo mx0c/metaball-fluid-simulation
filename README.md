@@ -8,3 +8,5 @@ A 2D fluid simulation with physically simulated metaballs and marching squares c
 - matter.js 
 - p5.js
 
+## references:
+- http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/
