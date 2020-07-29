@@ -6,7 +6,7 @@ Events = Matter.Events,
 MouseConstraint = Matter.MouseConstraint;
 
 var w=700, h=700;
-var res = 10, threshold = 2.5
+var res = 10, threshold = 3
 let cols = w / res, rows = h / res;
 var engine, world, mMouseConstraint;
 var balls = [];
@@ -22,13 +22,10 @@ function setup() {
         isStatic: true
     }
     top = Bodies.rectangle(w/2, 100, w, 100, options);
-    World.add(world, top)
     ground = Bodies.rectangle(w/2, h, w, 100, options);
-    World.add(world, ground);
     left = Bodies.rectangle(0, 0, 100, h*2, options);
-    World.add(world, left);
     right = Bodies.rectangle(w, 0, 100, h*2, options);
-    World.add(world, right);
+    World.add(world, [top,ground,left,right]);
     
     for (let index = 0; index < 50; index++) {
         balls.push(new Ball(random(0,w), random(25,50), random(minParticleSize, maxParticleSize)));
@@ -57,93 +54,94 @@ function setup() {
 function draw() {
   Engine.update(engine);
   background(255)  
-  //for (let i = 0; i < cols; i++) {
-  //  for (let j = 0; j < rows; j++) {
-  //    noFill()
-  //    stroke(0)
-  //    rect(i*res, j*res, res, res);
-  //  }
-  //}
-  for (var i = 0; i < balls.length; i++) {
-      balls[i].show();
+  //drawGrid()
+  for (ball of balls) {
+      ball.update();
+      //ball.show();
   }
   fill(40);
   
   for (let i = 0; i < cols; i++) {
-      for (let j = 0; j < rows; j++) {
-          let y = j * res;
-          let x = i * res;
+    for (let j = 0; j < rows; j++) {
+      let y = j * res;
+      let x = i * res;
 
-          let topLeft = getMetaballDistance(x, y)
-          let topRight = getMetaballDistance(x + res, y) 
-          let bottomLeft = getMetaballDistance(x + res, y + res) 
-          let bottomRight = getMetaballDistance(x, y + res)
+      let a_value = getMetaballDistance(x, y)
+      let b_value = getMetaballDistance(x + res, y) 
+      let c_value = getMetaballDistance(x + res, y + res) 
+      let d_value = getMetaballDistance(x, y + res)
 
-          let state = convertToDec(topLeft,topRight,bottomLeft,bottomRight)
+      let amt = (threshold - a_value) / (b_value - a_value);
+      let a = createVector(lerp(x, x+res, amt), y);
 
-          let amt = (threshold - topLeft) / (topRight - topLeft);
-          let a = createVector(lerp(x, x + res, amt), y);
+      amt = (threshold - b_value) / (c_value - b_value);
+      let b = createVector(x + res, lerp(y, y+res, amt));  
+      
+      amt = (threshold - d_value) / (c_value - d_value);
+      let c = createVector(lerp(x, x+res, amt), y + res);
 
-          amt = (threshold - topRight) / (bottomLeft - topRight);
-          amt = amt > threshold || amt < -threshold ? 0.5 : amt
-          let b = createVector(x + res, y + res * 0.5);  
-          
-          amt = (threshold - bottomRight) / (bottomLeft - bottomRight);
-          let c = createVector(lerp(x, x + res, amt), y + res);
+      amt = (threshold - a_value) / (d_value - a_value);
+      let d = createVector(x, lerp(y, y+res, amt));
+             
+      let state = convertToDec(a_value,b_value,c_value,d_value)
+      stroke(0);
+      switch (state) {
+        case 1:
+          drawLine(c, d);
+          break;
+        case 2:
+          drawLine(b, c);
+          break;
+        case 3:
+          drawLine(b, d);
+          break;
+        case 4:
+          drawLine(a, b);
+          break;
+        case 5:
+          drawLine(a, d);
+          drawLine(b, c);
+          break;
+        case 6:
+          drawLine(a, c);
+          break;
+        case 7:
+          drawLine(a, d);
+          break;
+        case 8:
+          drawLine(a, d);
+          break;
+        case 9:
+          drawLine(a, c);
+          break;
+        case 10:
+          drawLine(a, b);
+          drawLine(c, d);
+          break;
+        case 11:
+          drawLine(a, b);
+          break;
+        case 12:
+          drawLine(b, d);
+          break;
+        case 13:
+          drawLine(b, c);
+          break;
+        case 14:
+          drawLine(c, d);
+          break;
+      }
+    } 
+  }
+}
 
-          amt = (threshold - topLeft) / (bottomLeft - topLeft);
-          amt = amt > threshold || amt < -threshold ? 0.5 : amt
-          let d = createVector(x, y + res * 0.5);
-                    
-          stroke(0);
-          //strokeWeight(1);
-          switch (state) {
-              case 1:
-                drawLine(c, d);
-                break;
-              case 2:
-                drawLine(b, c);
-                break;
-              case 3:
-                drawLine(b, d);
-                break;
-              case 4:
-                drawLine(a, b);
-                break;
-              case 5:
-                drawLine(a, d);
-                drawLine(b, c);
-                break;
-              case 6:
-                drawLine(a, c);
-                break;
-              case 7:
-                drawLine(a, d);
-                break;
-              case 8:
-                drawLine(a, d);
-                break;
-              case 9:
-                drawLine(a, c);
-                break;
-              case 10:
-                drawLine(a, b);
-                drawLine(c, d);
-                break;
-              case 11:
-                drawLine(a, b);
-                break;
-              case 12:
-                drawLine(b, d);
-                break;
-              case 13:
-                drawLine(b, c);
-                break;
-              case 14:
-                drawLine(c, d);
-                break;
-            }
-      } 
+function drawGrid(){
+  for (let i = 0; i < cols; i++) {
+    for (let j = 0; j < rows; j++) {
+      noFill()
+      stroke(0)
+      rect(i*res, j*res, res, res);
+    }
   }
 }
 
