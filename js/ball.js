@@ -1,10 +1,10 @@
 function Ball(x, y, r) {
     var options = {
       friction: 0,
-      restitution: 0.7
+      restitution: 0.75
     }
     this.body = Bodies.circle(x, y, r, options);
-    this.r = r*2;
+    this.r = 2*r;
     this.x = x;
     this.y = y;
     World.add(world, this.body);

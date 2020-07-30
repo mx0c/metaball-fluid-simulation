@@ -5,59 +5,50 @@ Mouse = Matter.Mouse,
 Events = Matter.Events,
 MouseConstraint = Matter.MouseConstraint;
 
-var w=700, h=700;
-var res = 10, threshold = 3
+var w=650, h=700;
+var res = 10, threshold = 3, halfRes = res / 2;
 let cols = w / res, rows = h / res;
 var engine, world, mMouseConstraint;
 var balls = [];
-var ground, left, right, top;
+var ground, left, right, top, obstacle;
 var maxParticleSize = 5;
 var minParticleSize = 20;
+var showParticles = false, showGrid = false, lerpEnabled = true;
+var particleAmt = 50;
 
 function setup() {
     var canvas = createCanvas(w, h);
+    canvas.parent("canvas")
     engine = Engine.create();
     world = engine.world;
-    var options = {
-        isStatic: true
-    }
-    top = Bodies.rectangle(w/2, 100, w, 100, options);
-    ground = Bodies.rectangle(w/2, h, w, 100, options);
-    left = Bodies.rectangle(0, 0, 100, h*2, options);
-    right = Bodies.rectangle(w, 0, 100, h*2, options);
+    top = Bodies.rectangle(w/2, 100, w, 100, { isStatic: true });
+    ground = Bodies.rectangle(w/2, h, w, 100, { isStatic: true });
+    left = Bodies.rectangle(0, 0, 100, h*2, { isStatic: true });
+    right = Bodies.rectangle(w, 0, 100, h*2, { isStatic: true });
+    obstacle = Bodies.rectangle(w/2, h/2, w/2, 200, {
+      isStatic: true,
+      angle: PI / 4
+    });
     World.add(world, [top,ground,left,right]);
-    
-    for (let index = 0; index < 50; index++) {
-        balls.push(new Ball(random(0,w), random(25,50), random(minParticleSize, maxParticleSize)));
-    }
+     
+    initParticles();
 
     var mouse = Mouse.create(canvas.elt) 
     mouse.pixelRatio = pixelDensity();
-    var options = {
-        mouse:mouse
-    }
-    mMouseConstraint = MouseConstraint.create(engine, options)
+    var options = 
+    mMouseConstraint = MouseConstraint.create(engine, { mouse:mouse })
     World.add(world, mMouseConstraint);
 
-    Events.on(mMouseConstraint, 'mousedown', function(event) {
-      for(ball of balls){
-        if(dist(ball.x,ball.y,event.mouse.absolute.x,event.mouse.absolute.y) > ball.r){
-          for (let i = 0; i < 5; i++) {
-            balls.push(new Ball(mouseX, mouseY, random(minParticleSize, maxParticleSize)))
-          }
-          return
-        }
-      }
-  });
-}
+    setupUi();
+  }
 
 function draw() {
   Engine.update(engine);
-  background(255)  
-  //drawGrid()
+  background(255)
+  showGrid ? drawGrid() : null;
   for (ball of balls) {
       ball.update();
-      //ball.show();
+      if(showParticles) ball.show();
   }
   fill(40);
   
@@ -72,16 +63,16 @@ function draw() {
       let d_value = getMetaballDistance(x, y + res)
 
       let amt = (threshold - a_value) / (b_value - a_value);
-      let a = createVector(lerp(x, x+res, amt), y);
+      let a = createVector(lerpEnabled ? lerp(x, x+res, amt) : x + halfRes, y);
 
       amt = (threshold - b_value) / (c_value - b_value);
-      let b = createVector(x + res, lerp(y, y+res, amt));  
+      let b = createVector(x + res, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);  
       
       amt = (threshold - d_value) / (c_value - d_value);
-      let c = createVector(lerp(x, x+res, amt), y + res);
+      let c = createVector(lerpEnabled ? lerp(x, x+res, amt) : x + halfRes, y + res);
 
       amt = (threshold - a_value) / (d_value - a_value);
-      let d = createVector(x, lerp(y, y+res, amt));
+      let d = createVector(x, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);
              
       let state = convertToDec(a_value,b_value,c_value,d_value)
       stroke(0);
@@ -135,11 +126,61 @@ function draw() {
   }
 }
 
+$("#display-particles").click(()=>{
+  showParticles = $("#display-particles").is(':checked')
+})
+
+$("#display-grid").click(()=>{
+  showGrid = $("#display-grid").is(':checked');
+})
+
+$("#particle-amount").change(()=>{
+  particleAmt = $("#particle-amount").val()
+  initParticles()
+})
+
+$("#threshold").change(()=>{
+  threshold = $("#threshold").val()
+})
+
+$("#max-size").change(()=>{
+  maxParticleSize = $("#max-size").val()
+  initParticles()
+})
+
+$("#min-size").change(()=>{
+  minParticleSize = $("#min-size").val()
+  initParticles()
+})
+
+$("#lerp").change(()=>{
+  lerpEnabled = $("#lerp").is(':checked')
+})
+
+function initParticles(){
+  for (const ball of balls) {
+    World.remove(world, ball.body)
+  }
+  balls = []
+  for (let i = 0; i < particleAmt; i++) {
+      balls.push(new Ball(random(0,w), random(80,100), random(minParticleSize, maxParticleSize)));
+  }
+}
+
+function setupUi(){
+  $("#max-size").val(maxParticleSize)
+  $("#min-size").val(minParticleSize)
+  $("#resolution").val(res)
+  $("#threshold").val(threshold)
+  $("#particle-amount").val(particleAmt)
+  $("#lerp").prop('checked', lerpEnabled);
+}
+
 function drawGrid(){
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       noFill()
-      stroke(0)
+      stroke(200)
       rect(i*res, j*res, res, res);
     }
   }
@@ -161,7 +202,7 @@ function drawLine(v1, v2) {
 function getMetaballDistance(x, y){
     let sum = 0;
     for (const ball of balls) {
-      sum += ball.r * ball.r / ((ball.x-x) * (ball.x-x) + (ball.y-y) * (ball.y-y));
+      sum += ball.r ** 2 / ((ball.x-x) ** 2  + (ball.y-y) ** 2);
     }
     return sum
 }
