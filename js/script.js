@@ -74,6 +74,9 @@ function draw() {
       let c_value = data[i+1][j+1]
       let d_value = data[i][j+1]
 
+      let state = convertToDec(a_value,b_value,c_value,d_value)
+      if(state == 0) continue;
+      
       let amt = (threshold - a_value) / (b_value - a_value);
       let a = createVector(lerpEnabled ? lerp(x, x+res, amt) : x + halfRes, y);
 
@@ -86,7 +89,6 @@ function draw() {
       amt = (threshold - a_value) / (d_value - a_value);
       let d = createVector(x, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);
              
-      let state = convertToDec(a_value,b_value,c_value,d_value)
       drawSquareState(state, a, b, c, d) 
     } 
   }
@@ -149,18 +151,6 @@ function showFps(){
   noStroke()
   text(parseInt(frameRate()) + " FPS", w-64, 32);
 }
-
-//buildSubTree (lowX, lowY, len){
-//  If (lowX, lowY) is out of range: Return a leaf node with {∞,∞}
-//2. If len = 1: Return a leaf node with {min, max} of corner values
-//3. Else
-//1. c1 = buildSubTree (lowX, lowY, len/2)
-//2. c2 = buildSubTree (lowX + len/2, lowY, len/2)
-//3. c3 = buildSubTree (lowX, lowY + len/2, len/2)
-//4. c4 = buildSubTree (lowX + len/2, lowY + len/2, len/2)
-//5. Return a node with children {c1,…,c4} and {min, max} of all
-//{min, max} of these children
-//}
 
 $("#display-particles").click(()=>{
   showParticles = $("#display-particles").is(':checked')
