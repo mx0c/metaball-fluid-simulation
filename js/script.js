@@ -45,6 +45,7 @@ function setup() {
 function draw() {
   Engine.update(engine);
   background(255)
+  showFps()
   showGrid ? drawGrid() : null;
   for (ball of balls) {
       ball.update();
@@ -128,6 +129,12 @@ function drawSquareState(state, a, b, c, d){
       drawLine(c, d);
       break;
   }
+}
+
+function showFps(){
+  textSize(15);
+  noStroke()
+  text(parseInt(frameRate()) + " FPS", w-64, 32);
 }
 
 $("#display-particles").click(()=>{
