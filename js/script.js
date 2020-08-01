@@ -7,7 +7,7 @@ MouseConstraint = Matter.MouseConstraint;
 
 var w=650, h=700;
 var res = 10, threshold = 3, halfRes = res / 2;
-let cols = w / res, rows = h / res;
+let cols = w / res + 1, rows = h / res + 1;
 var engine, world, mMouseConstraint;
 var balls = [];
 var ground, left, right, top, obstacle;
@@ -15,53 +15,64 @@ var minParticleSize = 5;
 var maxParticleSize = 20;
 var showParticles = false, showGrid = false, lerpEnabled = true;
 var particleAmt = 50;
+var data = []
 
 function setup() {
     var canvas = createCanvas(w, h);
     canvas.parent("canvas")
     engine = Engine.create();
     world = engine.world;
-    top = Bodies.rectangle(w/2, 100, w, 100, { isStatic: true });
+    top = Bodies.rectangle(w/2, 0, w, 100, { isStatic: true });
     ground = Bodies.rectangle(w/2, h, w, 100, { isStatic: true });
     left = Bodies.rectangle(0, 0, 100, h*2, { isStatic: true });
     right = Bodies.rectangle(w, 0, 100, h*2, { isStatic: true });
-    obstacle = Bodies.rectangle(w/2, h/2, w/2, 200, {
-      isStatic: true,
-      angle: PI / 4
-    });
+    obstacle = Bodies.rectangle(w/2, h/2, w/2, 200, { isStatic: true, angle: PI / 4 });
     World.add(world, [top,ground,left,right]);
      
-    initParticles();
-
     var mouse = Mouse.create(canvas.elt) 
     mouse.pixelRatio = pixelDensity();
     var options = 
     mMouseConstraint = MouseConstraint.create(engine, { mouse:mouse })
     World.add(world, mMouseConstraint);
+   
+    //init 2d array
+    for(let i = 0; i < rows; i++){
+      data[i] = []
+    }
 
+    initParticles();
     setupUi();
   }
 
 function draw() {
   Engine.update(engine);
   background(255)
-  showFps()
-  showGrid ? drawGrid() : null;
   for (ball of balls) {
       ball.update();
       if(showParticles) ball.show();
   }
-  fill(40);
-  
+
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       let y = j * res;
       let x = i * res;
 
-      let a_value = getMetaballDistance(x, y)
-      let b_value = getMetaballDistance(x + res, y) 
-      let c_value = getMetaballDistance(x + res, y + res) 
-      let d_value = getMetaballDistance(x, y + res)
+      data[i][j] = getMetaballDistance(x,y);
+    }
+  }
+
+  fill(40);
+  for (let i = 0; i < cols-1; i++) {
+    for (let j = 0; j < rows-1; j++) {
+      let y = j * res;
+      let x = i * res;
+
+      showGrid ? drawGrid(i, j) : null
+
+      let a_value = data[i][j]
+      let b_value = data[i+1][j]
+      let c_value = data[i+1][j+1]
+      let d_value = data[i][j+1]
 
       let amt = (threshold - a_value) / (b_value - a_value);
       let a = createVector(lerpEnabled ? lerp(x, x+res, amt) : x + halfRes, y);
@@ -76,9 +87,10 @@ function draw() {
       let d = createVector(x, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);
              
       let state = convertToDec(a_value,b_value,c_value,d_value)
-      drawSquareState(state, a, b, c, d)
+      drawSquareState(state, a, b, c, d) 
     } 
   }
+  showFps()
 }
 
 function drawSquareState(state, a, b, c, d){
@@ -133,9 +145,22 @@ function drawSquareState(state, a, b, c, d){
 
 function showFps(){
   textSize(15);
+  fill(0)
   noStroke()
   text(parseInt(frameRate()) + " FPS", w-64, 32);
 }
+
+//buildSubTree (lowX, lowY, len){
+//  If (lowX, lowY) is out of range: Return a leaf node with {∞,∞}
+//2. If len = 1: Return a leaf node with {min, max} of corner values
+//3. Else
+//1. c1 = buildSubTree (lowX, lowY, len/2)
+//2. c2 = buildSubTree (lowX + len/2, lowY, len/2)
+//3. c3 = buildSubTree (lowX, lowY + len/2, len/2)
+//4. c4 = buildSubTree (lowX + len/2, lowY + len/2, len/2)
+//5. Return a node with children {c1,…,c4} and {min, max} of all
+//{min, max} of these children
+//}
 
 $("#display-particles").click(()=>{
   showParticles = $("#display-particles").is(':checked')
@@ -188,14 +213,10 @@ function setupUi(){
   $("#lerp").prop('checked', lerpEnabled);
 }
 
-function drawGrid(){
-  for (let i = 0; i < cols; i++) {
-    for (let j = 0; j < rows; j++) {
+function drawGrid(i, j){
       noFill()
       stroke(200)
       rect(i*res, j*res, res, res);
-    }
-  }
 }
 
 function convertToDec(a,b,c,d){
