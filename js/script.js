@@ -11,8 +11,8 @@ let cols = w / res, rows = h / res;
 var engine, world, mMouseConstraint;
 var balls = [];
 var ground, left, right, top, obstacle;
-var maxParticleSize = 5;
-var minParticleSize = 20;
+var minParticleSize = 5;
+var maxParticleSize = 20;
 var showParticles = false, showGrid = false, lerpEnabled = true;
 var particleAmt = 50;
 
@@ -75,54 +75,58 @@ function draw() {
       let d = createVector(x, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);
              
       let state = convertToDec(a_value,b_value,c_value,d_value)
-      stroke(0);
-      switch (state) {
-        case 1:
-          drawLine(c, d);
-          break;
-        case 2:
-          drawLine(b, c);
-          break;
-        case 3:
-          drawLine(b, d);
-          break;
-        case 4:
-          drawLine(a, b);
-          break;
-        case 5:
-          drawLine(a, d);
-          drawLine(b, c);
-          break;
-        case 6:
-          drawLine(a, c);
-          break;
-        case 7:
-          drawLine(a, d);
-          break;
-        case 8:
-          drawLine(a, d);
-          break;
-        case 9:
-          drawLine(a, c);
-          break;
-        case 10:
-          drawLine(a, b);
-          drawLine(c, d);
-          break;
-        case 11:
-          drawLine(a, b);
-          break;
-        case 12:
-          drawLine(b, d);
-          break;
-        case 13:
-          drawLine(b, c);
-          break;
-        case 14:
-          drawLine(c, d);
-          break;
-      }
+      drawSquareState(state, a, b, c, d)
     } 
+  }
+}
+
+function drawSquareState(state, a, b, c, d){
+  stroke(0);
+  switch (state) {
+    case 1:
+      drawLine(c, d);
+      break;
+    case 2:
+      drawLine(b, c);
+      break;
+    case 3:
+      drawLine(b, d);
+      break;
+    case 4:
+      drawLine(a, b);
+      break;
+    case 5:
+      drawLine(a, d);
+      drawLine(b, c);
+      break;
+    case 6:
+      drawLine(a, c);
+      break;
+    case 7:
+      drawLine(a, d);
+      break;
+    case 8:
+      drawLine(a, d);
+      break;
+    case 9:
+      drawLine(a, c);
+      break;
+    case 10:
+      drawLine(a, b);
+      drawLine(c, d);
+      break;
+    case 11:
+      drawLine(a, b);
+      break;
+    case 12:
+      drawLine(b, d);
+      break;
+    case 13:
+      drawLine(b, c);
+      break;
+    case 14:
+      drawLine(c, d);
+      break;
   }
 }
 
@@ -144,12 +148,12 @@ $("#threshold").change(()=>{
 })
 
 $("#max-size").change(()=>{
-  maxParticleSize = $("#max-size").val()
+  maxParticleSize = parseInt($("#max-size").val())
   initParticles()
 })
 
 $("#min-size").change(()=>{
-  minParticleSize = $("#min-size").val()
+  minParticleSize = parseInt($("#min-size").val())
   initParticles()
 })
 
@@ -162,6 +166,7 @@ function initParticles(){
     World.remove(world, ball.body)
   }
   balls = []
+  console.log(minParticleSize, maxParticleSize)
   for (let i = 0; i < particleAmt; i++) {
       balls.push(new Ball(random(0,w), random(80,100), random(minParticleSize, maxParticleSize)));
   }
