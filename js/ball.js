@@ -16,8 +16,7 @@ function Ball(x, y, r) {
     }
 
     this.show = function() {
-      stroke(0);
-      noFill()
+      fill(255)
       var pos = this.body.position;
       circle(pos.x, pos.y, this.r)
     }

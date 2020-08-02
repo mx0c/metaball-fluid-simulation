@@ -47,23 +47,17 @@ function setup() {
 function draw() {
   Engine.update(engine);
   background(255)
-  for (ball of balls) {
-      ball.update();
-      if(showParticles) ball.show();
-  }
 
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       let y = j * res;
       let x = i * res;
-
       data[i][j] = getMetaballDistance(x,y);
     }
   }
 
-  fill(40);
-  for (let i = 0; i < cols-1; i++) {
-    for (let j = 0; j < rows-1; j++) {
+  for (let i = 0; i < cols - 1; i++) {
+    for (let j = 0; j < rows - 1; j++) {
       let y = j * res;
       let x = i * res;
 
@@ -92,10 +86,15 @@ function draw() {
       drawSquareState(state, a, b, c, d, x, y) 
     } 
   }
+  for (ball of balls) {
+    ball.update();
+    if(showParticles) ball.show();
+  }
   showFps()
 }
 
 function drawSquareState(state, a, b, c, d, x, y){
+  fill(0)
   switch (state) {
     case 1:
       triangle(c.x, c.y, d.x, d.y, x, y+res)
@@ -262,9 +261,9 @@ function setupUi(){
 }
 
 function drawGrid(i, j){
-      noFill()
-      stroke(200)
-      rect(i*res, j*res, res, res);
+    noFill()
+    stroke(155)
+    rect(i*res, j*res, res, res);
 }
 
 function convertToDec(a,b,c,d){
