@@ -76,7 +76,7 @@ function draw() {
 
       let state = convertToDec(a_value,b_value,c_value,d_value)
       if(state == 0) continue;
-      
+
       let amt = (threshold - a_value) / (b_value - a_value);
       let a = createVector(lerpEnabled ? lerp(x, x+res, amt) : x + halfRes, y);
 
@@ -89,58 +89,116 @@ function draw() {
       amt = (threshold - a_value) / (d_value - a_value);
       let d = createVector(x, lerpEnabled ? lerp(y, y+res, amt) : y + halfRes);
              
-      drawSquareState(state, a, b, c, d) 
+      drawSquareState(state, a, b, c, d, x, y) 
     } 
   }
   showFps()
 }
 
-function drawSquareState(state, a, b, c, d){
-  stroke(0);
+function drawSquareState(state, a, b, c, d, x, y){
   switch (state) {
     case 1:
-      drawLine(c, d);
+      triangle(c.x, c.y, d.x, d.y, x, y+res)
       break;
     case 2:
-      drawLine(b, c);
+      triangle(b.x, b.y,c.x, c.y,x+res, y+res)
       break;
     case 3:
-      drawLine(b, d);
+      beginShape()
+      vertex(b.x, b.y)
+      vertex(d.x, d.y) 
+      vertex(x, y + res)
+      vertex(x + res, y + res)
+      endShape()
       break;
     case 4:
-      drawLine(a, b);
+      triangle(a.x,a.y,b.x,b.y, x+res,y)
       break;
     case 5:
-      drawLine(a, d);
-      drawLine(b, c);
+      beginShape()
+      vertex(a.x, a.y)
+      vertex(d.x, d.y)
+      vertex(x,y+res)
+      vertex(c.x,c.y)
+      vertex(b.x,b.y)
+      vertex(x+res,y)
+      endShape()
       break;
     case 6:
-      drawLine(a, c);
+      beginShape()
+      vertex(a.x,a.y)
+      vertex(c.x,c.y)
+      vertex(x+res,y+res)
+      vertex(x+res,y)
+      endShape()
       break;
     case 7:
-      drawLine(a, d);
+      beginShape()
+      vertex(a.x,a.y)
+      vertex(d.x,d.y)
+      vertex(x,y+res)
+      vertex(x+res,y+res)
+      vertex(x+res,y)
+      endShape()
       break;
     case 8:
-      drawLine(a, d);
+      triangle(a.x,a.y,d.x,d.y,x,y)
       break;
     case 9:
-      drawLine(a, c);
+      beginShape();
+      vertex(a.x,a.y)
+      vertex(c.x,c.y)
+      vertex(x,y+res)
+      vertex(x,y)
+      endShape()
       break;
     case 10:
-      drawLine(a, b);
-      drawLine(c, d);
+      beginShape()
+      vertex(a.x,a.y)
+      vertex(b.x,b.y)
+      vertex(x+res,y+res)
+      vertex(c.x,c.y)
+      vertex(d.x,d.y)
+      vertex(x,y)
+      endShape()
       break;
     case 11:
-      drawLine(a, b);
+      beginShape()
+      vertex(a.x,a.y)
+      vertex(b.x,b.y)
+      vertex(x+res,y+res)
+      vertex(x,y+res)
+      vertex(x,y)
+      endShape()
       break;
     case 12:
-      drawLine(b, d);
+      beginShape()
+      vertex(b.x,b.y)
+      vertex(d.x,d.y)
+      vertex(x,y)
+      vertex(x+res,y)
+      endShape()
       break;
     case 13:
-      drawLine(b, c);
+      beginShape()
+      vertex(b.x,b.y)
+      vertex(c.x,c.y)
+      vertex(x,y+res)
+      vertex(x,y)
+      vertex(x+res,y)
+      endShape()
       break;
     case 14:
-      drawLine(c, d);
+      beginShape()
+      vertex(c.x,c.y)
+      vertex(d.x,d.y)
+      vertex(x,y)
+      vertex(x+res,y)
+      vertex(x+res,y+res)
+      endShape()
+      break;
+    case 15:
+      rect(x, y, res, res);
       break;
   }
 }
