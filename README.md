@@ -1,12 +1,13 @@
 # metaball-fluid-simulation
 A 2D fluid simulation with physically simulated rigidbody metaballs and marching squares contour detection.
 
-### demo:
+### live-demo:
 - https://mx0c.github.io/metaball-fluid-simulation/
 
 ### dependencies:
-- matter.js 
-- p5.js
+- [matter.js](https://www.npmjs.com/package/matter-js)
+- [matter-attractors](https://www.npmjs.com/package/matter-attractors)
+- [p5.js](https://www.npmjs.com/package/p5)
 
 ## references:
 - [metaballs and marching squares by jamie wong](http://jamie-wong.com/2014/08/19/metaballs-and-marching-squares/)
