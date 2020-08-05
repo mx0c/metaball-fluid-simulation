@@ -1,7 +1,7 @@
 function Ball(x, y, r) {
     var options = {
       friction: 0,
-      restitution: 0.75
+      restitution: 0.85
     }
     this.body = Bodies.circle(x, y, r, options);
     this.r = 2*r;

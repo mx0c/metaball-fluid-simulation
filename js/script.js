@@ -3,18 +3,24 @@ World = Matter.World,
 Bodies = Matter.Bodies,
 Mouse = Matter.Mouse,
 Events = Matter.Events,
-MouseConstraint = Matter.MouseConstraint;
+MouseConstraint = Matter.MouseConstraint,
+Common = Matter.Common,
+Body = Matter.Body;
+
+Matter.use('matter-attractors');
 
 var w=650, h=700;
-var res = 10, threshold = 3, halfRes = res / 2;
+var res = 8, threshold = 3, halfRes = res / 2;
 let cols = w / res + 1, rows = h / res + 1;
 var engine, world, mMouseConstraint;
 var balls = [];
-var ground, left, right, top, obstacle;
-var minParticleSize = 5;
+var ground, left, right, top, obstacle, attractor;
+var minParticleSize = 10;
 var maxParticleSize = 20;
 var showParticles = false, showGrid = false, lerpEnabled = true;
 var particleAmt = 50;
+var attractorGravity = 0;
+var mouse;
 var data = []
 
 function setup() {
@@ -22,16 +28,15 @@ function setup() {
     canvas.parent("canvas")
     engine = Engine.create();
     world = engine.world;
-    top = Bodies.rectangle(w/2, 0, w, 100, { isStatic: true });
+    top = Bodies.rectangle(0, h, w, 40, { isStatic: true });
     ground = Bodies.rectangle(w/2, h, w, 100, { isStatic: true });
     left = Bodies.rectangle(0, 0, 100, h*2, { isStatic: true });
     right = Bodies.rectangle(w, 0, 100, h*2, { isStatic: true });
     obstacle = Bodies.rectangle(w/2, h/2, w/2, 200, { isStatic: true, angle: PI / 4 });
     World.add(world, [top,ground,left,right]);
      
-    var mouse = Mouse.create(canvas.elt) 
+    mouse = Mouse.create(canvas.elt) 
     mouse.pixelRatio = pixelDensity();
-    var options = 
     mMouseConstraint = MouseConstraint.create(engine, { mouse:mouse })
     World.add(world, mMouseConstraint);
    
@@ -40,8 +45,37 @@ function setup() {
       data[i] = []
     }
 
+    attractor = Matter.Bodies.circle(width/2, height/2, 20, {
+      plugin: {
+        attractors: [function(bodyA, bodyB) {
+          return {
+            x: (bodyA.position.x - bodyB.position.x) * attractorGravity,
+            y: (bodyA.position.y - bodyB.position.y) * attractorGravity,
+          };
+        }]
+      }
+    });
+    World.add(world,attractor)
+
     initParticles();
     setupUi();
+  }
+
+  function mousePressed() {
+    attractorGravity = 1e-6
+    world.gravity.scale = 0;
+  }
+
+  function mouseDragged() {
+      Body.translate(attractor, {
+        x: (mouse.position.x - attractor.position.x) * 0.25,
+        y: (mouse.position.y - attractor.position.y) * 0.25
+    });
+  }
+
+  function mouseReleased() {
+    world.gravity.scale = 0.001
+    attractorGravity = 0;
   }
 
 function draw() {

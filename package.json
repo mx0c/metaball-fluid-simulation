@@ -1,0 +1,12 @@
+{
+  "name": "metaball-fluid-simulation",
+  "version": "1.0.0",
+  "description": "A 2D fluid simulation with physically simulated metaballs and marching squares contour detection.",
+  "dependencies": {
+    "bootstrap": "^4.5.1",
+    "jquery": "^3.5.1",
+    "matter-attractors": "^0.1.6",
+    "matter-js": "^0.12.0",
+    "p5": "^1.1.9"
+  }
+}
