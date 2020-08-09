@@ -10,7 +10,7 @@ Body = Matter.Body;
 Matter.use('matter-attractors');
 
 var w=650, h=700;
-var res = 8, threshold = 3, halfRes = res / 2;
+var res = 10, threshold = 3, halfRes = res / 2;
 let cols = w / res + 1, rows = h / res + 1;
 var engine, world, mMouseConstraint;
 var balls = [];
