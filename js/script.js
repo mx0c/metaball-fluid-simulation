@@ -3,21 +3,21 @@ World = Matter.World,
 Bodies = Matter.Bodies,
 Mouse = Matter.Mouse,
 Events = Matter.Events,
-MouseConstraint = Matter.MouseConstraint,
 Common = Matter.Common,
 Body = Matter.Body;
 
 Matter.use('matter-attractors');
 
-var w=650, h=700;
-var res = 8, threshold = 3, halfRes = res / 2;
+var w = 650, h = 700;
+var res = 10, threshold = 3, halfRes = res / 2;
 let cols = w / res + 1, rows = h / res + 1;
-var engine, world, mMouseConstraint;
+var engine, world;
 var balls = [];
-var ground, left, right, top, obstacle, attractor;
+var obstacles = [];
+var attractor;
 var minParticleSize = 10;
 var maxParticleSize = 20;
-var showParticles = false, showGrid = false, lerpEnabled = true;
+var showParticles = false, lerpEnabled = true;
 var particleAmt = 50;
 var attractorGravity = 0;
 var mouse;
@@ -28,17 +28,15 @@ function setup() {
     canvas.parent("canvas")
     engine = Engine.create();
     world = engine.world;
-    top = Bodies.rectangle(0, h, w, 40, { isStatic: true });
-    ground = Bodies.rectangle(w/2, h, w, 100, { isStatic: true });
-    left = Bodies.rectangle(0, 0, 100, h*2, { isStatic: true });
-    right = Bodies.rectangle(w, 0, 100, h*2, { isStatic: true });
-    obstacle = Bodies.rectangle(w/2, h/2, w/2, 200, { isStatic: true, angle: PI / 4 });
-    World.add(world, [top,ground,left,right]);
+    obstacles.push(new Box(w/2, 0, w, 15));
+    obstacles.push(new Box(w/2, h, w, 15));
+    obstacles.push(new Box(0, 0, 15, h*2));
+    obstacles.push(new Box(w, 0 , 15, h*2));
+    obstacles.push(new Box(w/2, h/2 - 50, w/2, 100, PI / 4 ));
+    World.add(world, obstacles);
      
     mouse = Mouse.create(canvas.elt) 
     mouse.pixelRatio = pixelDensity();
-    mMouseConstraint = MouseConstraint.create(engine, { mouse:mouse })
-    World.add(world, mMouseConstraint);
    
     //init 2d array
     for(let i = 0; i < rows; i++){
@@ -95,8 +93,6 @@ function draw() {
       let y = j * res;
       let x = i * res;
 
-      showGrid ? drawGrid(i, j) : null
-
       let a_value = data[i][j]
       let b_value = data[i+1][j]
       let c_value = data[i+1][j+1]
@@ -123,6 +119,9 @@ function draw() {
   for (ball of balls) {
     ball.update();
     if(showParticles) ball.show();
+  }
+  for(obstacle of obstacles){
+    obstacle.show();
   }
   showFps()
 }
@@ -279,7 +278,6 @@ function initParticles(){
     World.remove(world, ball.body)
   }
   balls = []
-  console.log(minParticleSize, maxParticleSize)
   for (let i = 0; i < particleAmt; i++) {
       balls.push(new Ball(random(0,w), random(80,100), random(minParticleSize, maxParticleSize)));
   }
@@ -292,12 +290,6 @@ function setupUi(){
   $("#threshold").val(threshold)
   $("#particle-amount").val(particleAmt)
   $("#lerp").prop('checked', lerpEnabled);
-}
-
-function drawGrid(i, j){
-    noFill()
-    stroke(155)
-    rect(i*res, j*res, res, res);
 }
 
 function convertToDec(a,b,c,d){
