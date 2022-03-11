@@ -3,7 +3,7 @@ A toy 2D fluid simulation with physically simulated rigidbody metaballs and marc
 
 # [demo](https://mx0c.github.io/metaball-fluid-simulation/)
 
-### dependencies
+## dependencies
 - [matter.js](https://www.npmjs.com/package/matter-js)
 - [matter-attractors](https://www.npmjs.com/package/matter-attractors)
 - [p5.js](https://www.npmjs.com/package/p5)
