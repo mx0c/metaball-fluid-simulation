@@ -9,16 +9,18 @@ Body = Matter.Body;
 Matter.use('matter-attractors');
 
 var w = 650, h = 700;
-var res = 10, threshold = 3, halfRes = res / 2;
-let cols = w / res + 1, rows = h / res + 1;
+var res = 7, threshold = 3;
+var halfRes = parseInt(res / 2);
+var cols = parseInt(w / res + 1), rows = parseInt(h / res + 1);
+
 var engine, world;
 var balls = [];
 var obstacles = [];
 var attractor;
-var minParticleSize = 10;
-var maxParticleSize = 20;
+var minParticleSize = 7;
+var maxParticleSize = 15;
 var showParticles = false, lerpEnabled = true;
-var particleAmt = 50;
+var particleAmt = 75;
 var attractorGravity = 0;
 var mouse;
 var data = []
@@ -260,9 +262,14 @@ $("#threshold").change(()=>{
 })
 
 $("#resolution").change(()=>{
-  res = $("#resolution").val()
-  halfRes = res / 2;
-  cols = w / res + 1, rows = h / res + 1;
+  res = parseInt($("#resolution").val())
+  halfRes = parseInt(res / 2);
+  cols = parseInt(w / res + 1), rows = parseInt(h / res + 1);
+  data = []
+  //init 2d array
+  for(let i = 0; i < rows; i++){
+    data[i] = []
+  }
 })
 
 $("#max-size").change(()=>{
@@ -296,6 +303,7 @@ function setupUi(){
   $("#threshold").val(threshold)
   $("#particle-amount").val(particleAmt)
   $("#lerp").prop('checked', lerpEnabled);
+  $("#resolution").val(res);
 }
 
 function convertToDec(a,b,c,d){
