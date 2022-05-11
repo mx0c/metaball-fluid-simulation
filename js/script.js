@@ -259,6 +259,12 @@ $("#threshold").change(()=>{
   threshold = $("#threshold").val()
 })
 
+$("#resolution").change(()=>{
+  res = $("#resolution").val()
+  halfRes = res / 2;
+  cols = w / res + 1, rows = h / res + 1;
+})
+
 $("#max-size").change(()=>{
   maxParticleSize = parseInt($("#max-size").val())
   initParticles()
